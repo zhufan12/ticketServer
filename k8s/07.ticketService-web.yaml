@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ticketService-web-dply
+  namespace: ticketService
+  labels:
+    app: ticketService-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ticketService-web
+  template:
+    metadata:
+      labels:
+        app: ticketService-web
+    spec:
+      containers:
+      - image: ticketService.azurecr.io/webportal
+        name: ticketService-web
+        env:
+        - name: dbSvr
+          valueFrom:
+            configMapKeyRef:
+              name: cm-ticketService
+              key: dbSvr
+        - name: dbUsr
+          valueFrom:
+            configMapKeyRef:
+              name: cm-ticketService
+              key: dbUsr              
+        - name: dbPwd
+          valueFrom:
+            secretKeyRef:
+              name: srt-ticketService
+              key: dbPwd
+        - name: rmqUsr
+          valueFrom:
+            configMapKeyRef:
+              name: cm-ticketService
+              key: rmqUsr              
+        - name: rmqPwd
+          valueFrom:
+            secretKeyRef:
+              name: srt-ticketService
+              key: rmqPwd                     
+        ports:
+        - containerPort: 8080
+          name: ticketService-web
+        resources:
+          limits:
+            cpu: 500m
+          requests:
+            cpu: 200m          
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webportal
+  namespace: ticketService
+  labels:
+    app: ticketService-web
+spec:
+  selector:
+    app: ticketService-web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer

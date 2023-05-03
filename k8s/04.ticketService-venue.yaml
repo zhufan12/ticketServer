@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ticketService-venue-dply
+  namespace: ticketService
+  labels:
+    app: ticketService-venue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ticketService-venue
+  template:
+    metadata:
+      labels:
+        app: ticketService-venue
+    spec:
+      containers:
+      - image: ticketService.azurecr.io/venuesvc
+        name: ticketService-venue
+        env:
+        - name: dbSvr
+          valueFrom:
+            configMapKeyRef:
+              name: cm-ticketService
+              key: dbSvr
+        - name: dbUsr
+          valueFrom:
+            configMapKeyRef:
+              name: cm-ticketService
+              key: dbUsr              
+        - name: dbPwd
+          valueFrom:
+            secretKeyRef:
+              name: srt-ticketService
+              key: dbPwd       
+        ports:
+        - containerPort: 8080
+          name: ticketService-venue
+        resources:
+          limits:
+            cpu: 500m
+          requests:
+            cpu: 200m          
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: venuesvc
+  namespace: ticketService
+  labels:
+    app: ticketService-venue
+spec:
+  selector:
+    app: ticketService-venue
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

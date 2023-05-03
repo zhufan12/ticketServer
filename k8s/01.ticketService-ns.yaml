@@ -1,0 +1,7 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: ticketService
+  labels:
+    name: ticketService
+    istio-injection: enabled

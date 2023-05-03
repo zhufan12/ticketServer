@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: srt-ticketService
+    namespace: ticketService
+type: Opaque
+data:
+    dbPwd: czEwMzk1MTg=
+    rmqPwd: YWRtaW4=
